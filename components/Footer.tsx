@@ -1,5 +1,6 @@
 import React from 'react';
 import { Instagram, Mail } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export const Footer: React.FC = () => {
   return (
@@ -20,6 +21,30 @@ export const Footer: React.FC = () => {
                  <li><a href="#portfolio" className="hover:text-nfs-green transition-colors">Portfólio</a></li>
                  <li><a href="#packages" className="hover:text-nfs-green transition-colors">Pacotes</a></li>
                  <li><a href="#diagnostic" className="hover:text-nfs-green transition-colors">Diagnóstico</a></li>
+              </ul>
+           </div>
+
+           <div>
+              <h4 className="text-white font-bold uppercase tracking-widest mb-4 text-xs">Conta</h4>
+              <ul className="space-y-2 text-nfs-muted text-sm">
+                 <li>
+                    <Link to="/login" className="hover:text-nfs-green transition-colors">
+                      Entrar
+                    </Link>
+                 </li>
+                 <li>
+                    <Link to="/account" className="hover:text-nfs-green transition-colors">
+                      Área do Cliente
+                    </Link>
+                 </li>
+                 <li>
+                    <Link
+                      to="/admin"
+                      className="text-[10px] font-mono uppercase tracking-widest hover:text-nfs-green transition-colors"
+                    >
+                      Admin
+                    </Link>
+                 </li>
               </ul>
            </div>
 
