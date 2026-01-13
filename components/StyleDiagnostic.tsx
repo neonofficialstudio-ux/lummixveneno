@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowRight, Loader2 } from 'lucide-react';
 import { submitLead } from '../services/supabase';
-import { fireEvent, getUTMs } from '../services/analytics';
+import { fireEvent, getSessionId, getUTMs } from '../services/analytics';
 import type { Lead } from '../types';
 
 type StyleDiagnosticProps = {
@@ -11,6 +11,8 @@ type StyleDiagnosticProps = {
 export const StyleDiagnostic: React.FC<StyleDiagnosticProps> = ({ whatsappNumber }) => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [honeypot, setHoneypot] = useState('');
   const [formData, setFormData] = useState<Partial<Lead>>({
     name: '',
     whatsapp: '',
@@ -25,19 +27,43 @@ export const StyleDiagnostic: React.FC<StyleDiagnosticProps> = ({ whatsappNumber
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (honeypot.trim()) {
+      setLoading(false);
+      return;
+    }
+    setErrorMessage('');
     setLoading(true);
 
     fireEvent('lead_submitted', 'diagnostico');
     const utms = getUTMs();
+    const lead: Lead = {
+      name: formData.name ?? '',
+      whatsapp: formData.whatsapp ?? '',
+      city: formData.city ?? '',
+      car_model: formData.car_model ?? '',
+      package_interest: formData.package_interest || undefined,
+      message: formData.message || undefined,
+      source: 'diagnostico',
+      consent: true,
+      session_id: getSessionId(),
+      honeypot,
+      ...utms,
+    };
 
     try {
-      await submitLead({
-        ...(formData as Lead),
-        consent: true,
-        source: 'diagnostic',
-        ...(utms as any),
-      } as any);
+      await submitLead(lead);
     } catch (err: any) {
+      const message = String(err?.message ?? '').toLowerCase();
+      if (
+        err?.status === 429 ||
+        err?.code === 'P0001' ||
+        message.includes('policy') ||
+        message.includes('rate')
+      ) {
+        setErrorMessage('Muitos envios em pouco tempo. Tenta novamente em alguns minutos.');
+        setLoading(false);
+        return;
+      }
       if (err?.message !== 'SUPABASE_NOT_CONFIGURED') {
         console.error('Failed to save lead, proceeding to WhatsApp anyway', err);
       }
@@ -78,6 +104,13 @@ export const StyleDiagnostic: React.FC<StyleDiagnosticProps> = ({ whatsappNumber
 
           {step === 1 ? (
             <form onSubmit={handleSubmit} className="space-y-6">
+              <div
+                style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}
+                aria-hidden="true"
+              >
+                <label>Website</label>
+                <input value={honeypot} onChange={(e) => setHoneypot(e.target.value)} />
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-xs uppercase tracking-widest text-nfs-muted">
@@ -155,6 +188,9 @@ export const StyleDiagnostic: React.FC<StyleDiagnosticProps> = ({ whatsappNumber
                   </>
                 )}
               </button>
+              {errorMessage ? (
+                <p className="text-center text-sm text-nfs-green mt-2">{errorMessage}</p>
+              ) : null}
               <p className="text-center text-xs text-nfs-muted mt-4">
                 *Ao enviar, você será redirecionado para o WhatsApp para receber o material.
               </p>
