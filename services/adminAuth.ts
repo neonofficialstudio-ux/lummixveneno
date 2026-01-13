@@ -21,9 +21,9 @@ export async function signOut() {
   return supabase.auth.signOut();
 }
 
-export async function checkIsAdmin() {
+export async function checkIsAdmin(): Promise<boolean> {
   if (!isSupabaseConfigured()) return false;
   const { data, error } = await supabase.rpc('is_admin');
-  if (error) throw error;
+  if (error) return false;
   return Boolean(data);
 }
