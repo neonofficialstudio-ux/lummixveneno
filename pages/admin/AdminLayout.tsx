@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { signOut } from '../../services/adminAuth';
 
 const navItems = [
@@ -23,6 +23,9 @@ export const AdminLayout: React.FC = () => {
         <div className="text-lg font-display uppercase italic text-white mb-8">
           Lummi Admin
         </div>
+        <Link to="/" className="text-xs font-mono text-nfs-muted hover:text-white mb-6">
+          ← Voltar ao site
+        </Link>
         <nav className="flex flex-col gap-2 text-sm">
           {navItems.map((item) => (
             <NavLink

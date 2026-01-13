@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { updateProfile } from '../../services/auth';
 
@@ -46,6 +46,14 @@ export const Account: React.FC = () => {
   return (
     <div className="min-h-screen bg-nfs-black text-white flex items-center justify-center px-4">
       <div className="w-full max-w-2xl bg-nfs-dark border border-white/10 p-8 shadow-[0_0_30px_rgba(0,255,156,0.15)]">
+        <div className="flex items-center justify-between mb-6">
+          <Link to="/" className="text-xs font-mono text-nfs-muted hover:text-white">
+            ← Voltar ao site
+          </Link>
+          <Link to="/admin" className="text-xs font-mono text-nfs-purple hover:text-white">
+            Admin →
+          </Link>
+        </div>
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <div>
             <h1 className="text-2xl font-display uppercase italic text-white">Minha conta</h1>
