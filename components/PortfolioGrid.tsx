@@ -115,7 +115,7 @@ export const PortfolioGrid: React.FC<PortfolioGridProps> = ({ whatsappNumber }) 
 
   const handleOpen = (item: DisplayPortfolioItem) => {
     setSelectedItem(item);
-    fireEvent('portfolio_opened', 'portfolio', { id: item.id });
+    fireEvent('portfolio_opened', 'portfolio', { id: item.id, category: item.category });
   };
 
   return (

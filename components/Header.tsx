@@ -1,9 +1,22 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Menu, X, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export const Header: React.FC = () => {
+export type HeaderProps = {
+  capacityMonthly: number;
+  capacityRemaining: number;
+};
+
+export const Header: React.FC<HeaderProps> = ({
+  capacityMonthly,
+  capacityRemaining,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
+  const usedPercent = useMemo(() => {
+    if (!capacityMonthly) return 0;
+    const used = capacityMonthly - capacityRemaining;
+    return Math.min(100, Math.max(0, (used / capacityMonthly) * 100));
+  }, [capacityMonthly, capacityRemaining]);
 
   const navItems = [
     { name: 'Portfólio', href: '#portfolio' },
@@ -47,9 +60,17 @@ export const Header: React.FC = () => {
                 <span className="text-[10px] text-nfs-muted uppercase tracking-wider">Capacidade Mês</span>
                 <div className="flex items-center gap-2">
                     <div className="h-1.5 w-16 bg-gray-800 rounded-full overflow-hidden">
-                        <div className="h-full bg-nfs-purple w-[70%]"></div>
+                        <div className="h-full bg-nfs-purple" style={{ width: `${usedPercent}%` }}></div>
                     </div>
-                    <span className="text-nfs-purple text-xs font-mono font-bold">Restam 12</span>
+                    <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-black/40 px-3 py-1">
+                      <Zap className="h-4 w-4 text-nfs-green" />
+                      <span className="text-xs text-white/70 font-mono">
+                        Capacidade: <span className="text-white">{capacityMonthly}</span>
+                      </span>
+                      <span className="text-nfs-purple text-xs font-mono font-bold">
+                        Restam {capacityRemaining}
+                      </span>
+                    </div>
                 </div>
             </div>
             <button 
@@ -91,8 +112,10 @@ export const Header: React.FC = () => {
               ))}
               <div className="pt-4 border-t border-white/10">
                  <div className="flex justify-between items-center mb-4">
-                    <span className="text-xs text-nfs-muted uppercase">Vagas Restantes</span>
-                    <span className="text-nfs-purple font-mono font-bold">12 / 40</span>
+                    <span className="text-xs text-nfs-muted uppercase">Capacidade Mensal</span>
+                    <span className="text-nfs-purple font-mono font-bold">
+                      {capacityRemaining} / {capacityMonthly}
+                    </span>
                  </div>
                  <button 
                    onClick={() => { setIsOpen(false); document.getElementById('diagnostic')?.scrollIntoView({ behavior: 'smooth'}) }}
