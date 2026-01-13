@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { checkIsAdmin } from '../../services/adminAuth';
 import { updateProfile } from '../../services/auth';
 
 export const Account: React.FC = () => {
@@ -11,11 +12,27 @@ export const Account: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     setDisplayName(profile?.display_name ?? '');
     setCity(profile?.city ?? '');
   }, [profile]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function run() {
+      if (!user) return;
+      const ok = await checkIsAdmin();
+      if (mounted) setIsAdmin(ok);
+    }
+
+    run();
+    return () => {
+      mounted = false;
+    };
+  }, [user]);
 
   const handleSave = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -50,9 +67,11 @@ export const Account: React.FC = () => {
           <Link to="/" className="text-xs font-mono text-nfs-muted hover:text-white">
             ← Voltar ao site
           </Link>
-          <Link to="/admin" className="text-xs font-mono text-nfs-purple hover:text-white">
-            Admin →
-          </Link>
+          {isAdmin ? (
+            <Link to="/admin" className="text-xs font-mono text-nfs-purple hover:text-white">
+              Admin →
+            </Link>
+          ) : null}
         </div>
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <div>
