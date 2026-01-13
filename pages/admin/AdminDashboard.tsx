@@ -75,26 +75,33 @@ export const AdminDashboard: React.FC = () => {
     };
   }, [data]);
 
+  const funnel = data?.funnel ?? {};
+  const pageViews = Number(funnel.page_views ?? 0);
+  const leadsSubmitted = Number(funnel.leads_submitted ?? 0);
+  const whatsappClicks = Number(funnel.whatsapp_clicks ?? 0);
+  const leadRate = Number(funnel.lead_rate_pct ?? 0);
+  const whatsappRate = Number(funnel.whatsapp_rate_pct ?? 0);
+
   const metrics = [
     {
       label: 'Page Views',
-      value: formatNumber(normalized.summary?.page_views),
+      value: formatNumber(pageViews),
     },
     {
       label: 'Leads Submitted',
-      value: formatNumber(normalized.summary?.leads_submitted),
+      value: formatNumber(leadsSubmitted),
     },
     {
       label: 'WhatsApp Clicks',
-      value: formatNumber(normalized.summary?.whatsapp_clicks),
+      value: formatNumber(whatsappClicks),
     },
     {
       label: 'Lead Rate',
-      value: formatPercent(normalized.summary?.lead_rate),
+      value: formatPercent(leadRate),
     },
     {
       label: 'WhatsApp Rate',
-      value: formatPercent(normalized.summary?.whatsapp_rate),
+      value: formatPercent(whatsappRate),
     },
   ];
 
