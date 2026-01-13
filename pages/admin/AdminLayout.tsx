@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { signOut } from '../../services/adminAuth';
 
 const navItems = [
+  { label: 'Dashboard', to: '/admin/dashboard' },
   { label: 'Leads', to: '/admin/leads' },
   { label: 'Settings', to: '/admin/settings' },
   { label: 'Portfólio', to: '/admin/portfolio' },
