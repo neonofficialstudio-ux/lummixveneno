@@ -111,7 +111,10 @@ export const Packages: React.FC<PackagesProps> = ({ whatsappNumber }) => {
 
               <a
                 href={`https://wa.me/${whatsappNumber}?text=Tenho interesse no pacote ${pkg.name}`}
-                onClick={() => fireEvent('cta_whatsapp_click', 'packages', { package: pkg.name })}
+                onClick={() => {
+                  fireEvent('package_selected', 'packages', { tier: pkg.name.toUpperCase() });
+                  fireEvent('cta_whatsapp_click', 'packages', { package: pkg.name });
+                }}
                 className={`w-full block text-center py-3 font-display uppercase italic tracking-wider transition-all ${
                   pkg.popular
                     ? 'bg-nfs-purple text-white hover:bg-white hover:text-black'

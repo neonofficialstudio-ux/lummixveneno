@@ -26,34 +26,9 @@ const DEFAULT_CONFIG: SiteConfig = {
   nextWindowDate: undefined,
 };
 
-const PLACEHOLDER_TESTIMONIALS: DisplayTestimonial[] = [
-  {
-    id: 'placeholder-1',
-    quote: 'Exemplo (substituir): atenção aos detalhes e consistência no feed.',
-    name: 'Cliente Verificado',
-    vehicle: 'Lancer GT',
-    isExample: true,
-  },
-  {
-    id: 'placeholder-2',
-    quote: 'Exemplo (substituir): a edição deixou o projeto com cara de showroom.',
-    name: 'Cliente Verificado',
-    vehicle: 'Golf GTI',
-    isExample: true,
-  },
-  {
-    id: 'placeholder-3',
-    quote: 'Exemplo (substituir): entregas rápidas e padrão premium.',
-    name: 'Cliente Verificado',
-    vehicle: 'BRZ',
-    isExample: true,
-  },
-];
-
 export default function App() {
   const [config, setConfig] = useState<SiteConfig>(DEFAULT_CONFIG);
   const [testimonials, setTestimonials] = useState<DisplayTestimonial[]>([]);
-  const [showExampleLabel, setShowExampleLabel] = useState(false);
   const firedScrollEvents = useRef({
     25: false,
     50: false,
@@ -122,17 +97,14 @@ export default function App() {
             vehicle: row.vehicle ?? row.car_model ?? row.project ?? 'Projeto Premium',
           }));
           setTestimonials(mapped);
-          setShowExampleLabel(false);
         } else {
-          setTestimonials(PLACEHOLDER_TESTIMONIALS);
-          setShowExampleLabel(true);
+          setTestimonials([]);
         }
       })
       .catch((error) => {
         console.warn('Falha ao carregar depoimentos:', error);
         if (isMounted) {
-          setTestimonials(PLACEHOLDER_TESTIMONIALS);
-          setShowExampleLabel(true);
+          setTestimonials([]);
         }
       });
 
@@ -143,7 +115,10 @@ export default function App() {
 
   return (
     <div className="bg-nfs-black min-h-screen text-white font-sans selection:bg-nfs-green selection:text-black">
-      <Header />
+      <Header
+        capacityMonthly={config.capacityMonthly}
+        capacityRemaining={config.capacityRemaining}
+      />
 
       <main>
         <Hero />
@@ -169,18 +144,13 @@ export default function App() {
         <section className="py-16 border-b border-white/5">
           <div className="container mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {[
-              { label: 'Entrega Rápida', val: '1-2 Dias' },
-              { label: 'Vagas/Mês', val: '40' },
-              { label: 'Garantia', val: 'Rev. Inclusa' },
-              { label: 'Qualidade', val: 'Premium' },
+              'Entrega: 1–2 dias úteis',
+              'Capacidade mensal: 40',
+              'Revisão inclusa',
+              'Direção de arte premium',
             ].map((stat, i) => (
-              <div key={i}>
-                <div className="text-3xl md:text-4xl font-display italic text-white mb-1">
-                  {stat.val}
-                </div>
-                <div className="text-xs text-nfs-muted uppercase tracking-widest">
-                  {stat.label}
-                </div>
+              <div key={i} className="text-2xl md:text-3xl font-display italic text-white">
+                {stat}
               </div>
             ))}
           </div>
@@ -204,7 +174,7 @@ export default function App() {
                   >
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex text-nfs-green">★★★★★</div>
-                      {(testimonial.isExample || showExampleLabel) && (
+                      {testimonial.isExample && (
                         <span className="text-[10px] uppercase tracking-widest text-nfs-muted">
                           Exemplo (substituir)
                         </span>
