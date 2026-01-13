@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
-import { Menu, X, Zap } from 'lucide-react';
+import { Menu, UserCircle2, X, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 export type HeaderProps = {
   capacityMonthly: number;
@@ -56,6 +57,13 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Right Side: Status + CTA */}
           <div className="hidden md:flex items-center gap-6">
+            <Link
+              to="/account"
+              className="text-nfs-muted hover:text-nfs-green transition-colors"
+              aria-label="Área do cliente"
+            >
+              <UserCircle2 className="h-5 w-5" />
+            </Link>
             <div className="flex flex-col items-end">
                 <span className="text-[10px] text-nfs-muted uppercase tracking-wider">Capacidade Mês</span>
                 <div className="flex items-center gap-2">
@@ -110,6 +118,13 @@ export const Header: React.FC<HeaderProps> = ({
                   {item.name}
                 </a>
               ))}
+              <Link
+                to="/account"
+                onClick={() => setIsOpen(false)}
+                className="block text-nfs-muted text-sm uppercase tracking-widest hover:text-nfs-green transition-colors"
+              >
+                Área do Cliente
+              </Link>
               <div className="pt-4 border-t border-white/10">
                  <div className="flex justify-between items-center mb-4">
                     <span className="text-xs text-nfs-muted uppercase">Capacidade Mensal</span>

@@ -28,7 +28,7 @@ export const RequireAdmin: React.FC<RequireAdminProps> = ({ children }) => {
       const { data } = await getSession();
       if (!isMounted) return;
       if (!data.session) {
-        navigate('/admin/login', { replace: true });
+        navigate('/login', { replace: true });
         return;
       }
       try {
@@ -50,7 +50,7 @@ export const RequireAdmin: React.FC<RequireAdminProps> = ({ children }) => {
 
     const { data: subscription } = onAuthStateChange((_event, session) => {
       if (!session) {
-        navigate('/admin/login', { replace: true });
+        navigate('/login', { replace: true });
       }
     });
 
