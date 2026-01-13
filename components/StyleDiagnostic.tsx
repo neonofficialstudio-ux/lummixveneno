@@ -34,7 +34,6 @@ export const StyleDiagnostic: React.FC<StyleDiagnosticProps> = ({ whatsappNumber
     setErrorMessage('');
     setLoading(true);
 
-    fireEvent('lead_submitted', 'diagnostico');
     const utms = getUTMs();
     const lead: Lead = {
       name: formData.name ?? '',
@@ -52,18 +51,14 @@ export const StyleDiagnostic: React.FC<StyleDiagnosticProps> = ({ whatsappNumber
 
     try {
       await submitLead(lead);
+      fireEvent('lead_submitted', 'diagnostico');
     } catch (err: any) {
-      const message = String(err?.message ?? '').toLowerCase();
-      if (
-        err?.status === 429 ||
-        err?.code === 'P0001' ||
-        message.includes('policy') ||
-        message.includes('rate')
-      ) {
-        setErrorMessage('Muitos envios em pouco tempo. Tenta novamente em alguns minutos.');
-        setLoading(false);
-        return;
-      }
+      fireEvent('lead_insert_failed', 'diagnostico', {
+        msg: String(err?.message ?? 'unknown'),
+      });
+      setErrorMessage(
+        'Não foi possível registrar seu pedido agora. Pode chamar no WhatsApp mesmo assim.',
+      );
       if (err?.message !== 'SUPABASE_NOT_CONFIGURED') {
         console.error('Failed to save lead, proceeding to WhatsApp anyway', err);
       }
