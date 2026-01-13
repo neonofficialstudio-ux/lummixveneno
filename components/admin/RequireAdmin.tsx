@@ -28,11 +28,19 @@ export const RequireAdmin: React.FC<RequireAdminProps> = ({ children }) => {
       const { data } = await getSession();
       if (!isMounted) return;
       if (!data.session) {
-        navigate('/login', { replace: true });
+        navigate('/login?redirect=/admin', { replace: true });
         return;
       }
       try {
-        const isAdmin = await checkIsAdmin();
+        const withTimeout = <T,>(promise: Promise<T>, ms: number) =>
+          Promise.race([
+            promise,
+            new Promise<T>((_, reject) =>
+              setTimeout(() => reject(new Error('TIMEOUT')), ms),
+            ),
+          ]);
+
+        const isAdmin = await withTimeout(checkIsAdmin(), 4000);
         if (!isMounted) return;
         if (!isAdmin) {
           setState('denied');
@@ -41,7 +49,11 @@ export const RequireAdmin: React.FC<RequireAdminProps> = ({ children }) => {
         }
       } catch (err) {
         if (!isMounted) return;
-        setError('Falha ao validar permissões.');
+        if (err instanceof Error && err.message === 'TIMEOUT') {
+          setError('Timeout ao validar permissões. Tente novamente.');
+        } else {
+          setError('Falha ao validar permissões.');
+        }
         setState('denied');
       }
     };
@@ -50,7 +62,7 @@ export const RequireAdmin: React.FC<RequireAdminProps> = ({ children }) => {
 
     const { data: subscription } = onAuthStateChange((_event, session) => {
       if (!session) {
-        navigate('/login', { replace: true });
+        navigate('/login?redirect=/admin', { replace: true });
       }
     });
 

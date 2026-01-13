@@ -1,21 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { isSupabaseConfigured } from '../../services/supabase';
 
 export const Login: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, signIn, loading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const redirect = new URLSearchParams(location.search).get('redirect') || '/account';
 
   useEffect(() => {
     if (!loading && user) {
-      navigate('/account', { replace: true });
+      navigate(redirect, { replace: true });
     }
-  }, [loading, navigate, user]);
+  }, [loading, navigate, redirect, user]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -24,7 +26,27 @@ export const Login: React.FC = () => {
 
     try {
       await signIn(email.trim(), password);
-      navigate('/account', { replace: true });
+      if (redirect.startsWith('/admin')) {
+        try {
+          const { supabase } = await import('../../services/supabase');
+          const { data, error: rpcError } = await supabase.rpc('is_admin');
+          if (rpcError) throw rpcError;
+
+          if (data) {
+            navigate('/admin', { replace: true });
+            return;
+          }
+          setError('Seu usuário não tem permissão de admin.');
+          navigate('/account', { replace: true });
+          return;
+        } catch {
+          setError('Falha ao validar permissão de admin.');
+          navigate('/account', { replace: true });
+          return;
+        }
+      }
+
+      navigate(redirect, { replace: true });
     } catch (err: any) {
       const message = err?.message ?? 'Não foi possível autenticar.';
       if (message.toLowerCase().includes('invalid')) {
@@ -55,52 +77,59 @@ export const Login: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-nfs-black text-white flex items-center justify-center px-4">
-      <div className="w-full max-w-md bg-nfs-dark border border-white/10 p-8 shadow-[0_0_30px_rgba(0,255,156,0.15)]">
-        <h1 className="text-2xl font-display uppercase italic mb-2 text-white">Login</h1>
-        <p className="text-xs text-nfs-muted font-mono uppercase tracking-widest mb-6">
-          Acesse sua área
-        </p>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs uppercase tracking-widest text-nfs-muted mb-2">
-              Email
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              className="w-full bg-black/40 border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:border-nfs-green"
-              placeholder="voce@email.com"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-xs uppercase tracking-widest text-nfs-muted mb-2">
-              Senha
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              className="w-full bg-black/40 border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:border-nfs-green"
-              placeholder="••••••••"
-              required
-            />
-          </div>
-          {error && <div className="text-sm text-red-400">{error}</div>}
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full bg-nfs-green text-black py-2 font-display uppercase italic tracking-widest hover:bg-white transition-colors disabled:opacity-60"
-          >
-            {submitting ? 'Entrando...' : 'Entrar'}
-          </button>
-        </form>
-        <div className="mt-6 text-xs text-nfs-muted">
-          Ainda não tem conta?{' '}
-          <Link to="/signup" className="text-nfs-green hover:text-white transition-colors">
-            Criar cadastro
+      <div className="w-full max-w-md">
+        <div className="mb-6">
+          <Link to="/" className="text-xs font-mono text-nfs-muted hover:text-white">
+            ← Voltar ao site
           </Link>
+        </div>
+        <div className="bg-nfs-dark border border-white/10 p-8 shadow-[0_0_30px_rgba(0,255,156,0.15)]">
+          <h1 className="text-2xl font-display uppercase italic mb-2 text-white">Login</h1>
+          <p className="text-xs text-nfs-muted font-mono uppercase tracking-widest mb-6">
+            Acesse sua área
+          </p>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-xs uppercase tracking-widest text-nfs-muted mb-2">
+                Email
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                className="w-full bg-black/40 border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:border-nfs-green"
+                placeholder="voce@email.com"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-xs uppercase tracking-widest text-nfs-muted mb-2">
+                Senha
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                className="w-full bg-black/40 border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:border-nfs-green"
+                placeholder="••••••••"
+                required
+              />
+            </div>
+            {error && <div className="text-sm text-red-400">{error}</div>}
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full bg-nfs-green text-black py-2 font-display uppercase italic tracking-widest hover:bg-white transition-colors disabled:opacity-60"
+            >
+              {submitting ? 'Entrando...' : 'Entrar'}
+            </button>
+          </form>
+          <div className="mt-6 text-xs text-nfs-muted">
+            Ainda não tem conta?{' '}
+            <Link to="/signup" className="text-nfs-green hover:text-white transition-colors">
+              Criar cadastro
+            </Link>
+          </div>
         </div>
       </div>
     </div>
