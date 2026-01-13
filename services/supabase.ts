@@ -12,9 +12,8 @@ export function isSupabaseConfigured() {
 
 export async function submitLead(lead: Lead) {
   if (!isSupabaseConfigured()) throw new Error('SUPABASE_NOT_CONFIGURED');
-  const { data, error } = await supabase.from('leads').insert([lead]).select();
+  const { error } = await supabase.from('leads').insert([lead]);
   if (error) throw error;
-  return data;
 }
 
 export async function trackEvent(event: AnalyticsEvent) {
