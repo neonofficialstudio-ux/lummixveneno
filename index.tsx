@@ -1,10 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import App from './App';
 import { RequireAdmin } from './components/admin/RequireAdmin';
 import { RequireAuth } from './components/auth/RequireAuth';
 import { AuthProvider } from './context/AuthContext';
+import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { AdminLayout } from './pages/admin/AdminLayout';
 import { AdminLeads } from './pages/admin/AdminLeads';
 import { AdminLogin } from './pages/admin/AdminLogin';
@@ -46,7 +47,8 @@ root.render(
               </RequireAdmin>
             }
           >
-            <Route index element={<AdminLeads />} />
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="leads" element={<AdminLeads />} />
             <Route path="settings" element={<AdminSettings />} />
             <Route path="portfolio" element={<AdminPortfolio />} />
